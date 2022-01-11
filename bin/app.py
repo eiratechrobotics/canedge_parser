@@ -2,7 +2,7 @@ import argparse
 import os
 import pathlib
 import logging.config
-from CANEdge1Parser.parser import CANEdge1Parser
+from CANEdge1Parser.parser import CANEdge1Parser, CANEdge1Plotter
 
 # Load CONFIG dir
 log_config_var = "CANPARSERCONFIGPATH"
@@ -23,11 +23,19 @@ data_dir = pathlib.Path(data_dir_path)
 # Define used paths
 data_input_dir = data_dir / 'input'
 data_output_dir = data_dir / 'output'
+data_plot_dir = data_dir / 'plot'
 config_logging_file = config_dir / 'logging.conf'
 
 # Configure logging
 logging.config.fileConfig(config_logging_file)
 logger = logging.getLogger()
+
+
+def parse_args():
+    """Parse the args."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--bots', nargs='+', required=True, help='List of bots to parse logs for ("*" for all bots).')
+    return parser.parse_args()
 
 
 def process_bots(bot_list):
@@ -63,13 +71,8 @@ def main():
 
     logger.info(f"Processing bots: {args.bots}")
     process_bots(args.bots)
-
-
-def parse_args():
-    """Parse the args."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--bots', nargs='+', required=True, help='List of bots to parse logs for ("*" for all bots).')
-    return parser.parse_args()
+    lp = CANEdge1Plotter(args.bots[0], data_output_dir, data_plot_dir, '5BB')
+    # lp.plot_heart_beat('2021-08-12 15:50:00.0', '2021-08-13 08:10:00.0')
 
 
 if __name__ == "__main__":
